@@ -3,6 +3,7 @@ const router = require("express").Router();
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 // How many rounds should bcrypt run the salt (default [10 - 12 rounds])
 const saltRounds = 10;
@@ -13,9 +14,12 @@ const User = require("../models/User.model");
 // Require necessary (isLoggedOut and isLiggedIn) middleware in order to control access to specific routes
 const isLoggedOut = require("../middleware/isLoggedOut");
 const isLoggedIn = require("../middleware/isLoggedIn");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
-router.get("/loggedin", (req, res) => {
-  res.json(req.user);
+router.get("/verify", isAuthenticated, (req, res, next) => {
+  console.log("req.payload", req.payload);
+
+  res.status(200).json(req.payload);
 });
 
 router.post("/signup", isLoggedOut, (req, res) => {
@@ -83,7 +87,7 @@ router.post("/signup", isLoggedOut, (req, res) => {
   });
 });
 
-router.post("/login", isLoggedOut, (req, res, next) => {
+router.post("/login", (req, res, next) => {
   const { username, password } = req.body;
 
   if (!username) {
@@ -113,9 +117,16 @@ router.post("/login", isLoggedOut, (req, res, next) => {
         if (!isSamePassword) {
           return res.status(400).json({ errorMessage: "Wrong credentials." });
         }
-        req.session.user = user;
+        //jwt
+        const { _id, username } = user;
+        const payload = { _id, username };
+        const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+          algorithm: "HS256",
+          expiresIn: "6h",
+        });
+
         // req.session.user = user._id; // ! better and safer but in this case we saving the entire user object
-        return res.json(user);
+        return res.status(200).json({ authToken });
       });
     })
 
