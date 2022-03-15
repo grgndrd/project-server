@@ -13,7 +13,16 @@ router.post("/recipes/create", (req, res, next) => {
 
 router.get("/recipes", (req, res, next) => {
   Recipe.find()
-    .then((response) => res.json(response))
+    .populate("chef")
+    .populate({
+      path: "comments",
+      populate: {
+        path: "author",
+        model: "User",
+      },
+    })
+      .then((response) => res.json(response)) 
+  
     .catch((err) => res.json(err));
 });
 
@@ -25,15 +34,15 @@ router.get("/recipes/:recipeId", (req, res, next) => {
     return;
   }
   console.log(recipeId);
-  Recipe.findById(recipeId)
-    // .populate("chef comments")
-    // .populate({
-    //   path: "comments",
-    //   populate: {
-    //     path: "author",
-    //     model: "User",
-    //   },
-    // })
+  Recipe.findById({})
+    .populate("chef")
+    .populate({
+      path: "comments",
+      populate: {
+        path: "author",
+        model: "User",
+      },
+    })
     .then((response) => {
       console.log(response);
       res.json(response);
