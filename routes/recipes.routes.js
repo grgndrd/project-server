@@ -21,8 +21,8 @@ router.get("/recipes", (req, res, next) => {
         model: "User",
       },
     })
-      .then((response) => res.json(response)) 
-  
+    .then((response) => res.json(response))
+
     .catch((err) => res.json(err));
 });
 
@@ -51,7 +51,7 @@ router.get("/recipes/:recipeId", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
-router.put("/recipes/:recipeId", (req, res, next) => {
+router.put("/recipes/edit/:recipeId", (req, res, next) => {
   const { recipeId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(recipeId)) {
