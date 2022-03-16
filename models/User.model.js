@@ -5,9 +5,10 @@ const userSchema = new Schema(
   {
     username: {
       type: String,
-       unique: true
+      unique: true,
     },
     password: String,
+    favoriteRecipes: Array,
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

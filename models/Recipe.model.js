@@ -5,7 +5,7 @@ const recipeSchema = new Schema(
     title: String,
     description: String,
     chef: { type: Schema.Types.ObjectId, ref: "User" },
-    comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+    // comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
   },
   {
     timestamps: true,

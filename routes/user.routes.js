@@ -1,5 +1,6 @@
 const router = require("express").Router();
 
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 const User = require("../models/User.model");
 
 // ****************************************************************************************
@@ -40,6 +41,19 @@ router.get("/users", (req, res) => {
     .catch((err) =>
       console.log(`Error while getting users from the DB: ${err}`)
     );
+});
+
+router.put("/add-favorite", isAuthenticated, (req, res, next) => {
+  const recipeObj = req.body;
+  const user = req.payload;
+  User.findByIdAndUpdate(user._id, {
+    $push: { favoriteRecipes: recipeObj },
+  })
+    .then((updatedUser) => {
+      console.log(updatedUser);
+      res.json(updatedUser);
+    })
+    .catch((err) => console.log(err));
 });
 
 // ****************************************************************************************

@@ -1,27 +1,32 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const Recipe = require("../models/Recipe.model");
 
-router.post("/recipes/create", (req, res, next) => {
-  const { chef, title, description, comments } = req.body;
+router.post("/recipes/create", isAuthenticated, (req, res, next) => {
+  const user = req.payload;
+  const { title, description } = req.body;
 
-  Recipe.create({ chef, title, description, comments })
+  Recipe.create({ chef: user._id, title, description })
     .then((response) => res.json(response))
     .catch((err) => next(err));
 });
 
 router.get("/recipes", (req, res, next) => {
   Recipe.find()
-    .populate("chef")
-    .populate({
-      path: "comments",
-      populate: {
-        path: "author",
-        model: "User",
-      },
+    // .populate("chef")
+    // .populate({
+    //   path: "comments",
+    //   populate: {
+    //     path: "author",
+    //     model: "User",
+    //   },
+    // })
+    .then((response) => {
+      console.log(response);
+      res.json(response);
     })
-    .then((response) => res.json(response))
 
     .catch((err) => res.json(err));
 });
@@ -34,15 +39,8 @@ router.get("/recipes/:recipeId", (req, res, next) => {
     return;
   }
   console.log(recipeId);
-  Recipe.findById({})
+  Recipe.findById(recipeId)
     .populate("chef")
-    .populate({
-      path: "comments",
-      populate: {
-        path: "author",
-        model: "User",
-      },
-    })
     .then((response) => {
       console.log(response);
       res.json(response);
