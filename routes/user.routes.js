@@ -56,6 +56,15 @@ router.put("/add-favorite", isAuthenticated, (req, res, next) => {
     .catch((err) => console.log(err));
 });
 
+router.get("/favorites", (req, res, next) => {
+  User.find()
+    .then((response) => {
+      console.log(response);
+      res.json(response);
+    })
+
+    .catch((err) => res.json(err));
+});
 // ****************************************************************************************
 // GET details of a specific user (primarily their posts)
 // ****************************************************************************************

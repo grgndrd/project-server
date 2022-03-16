@@ -31,6 +31,16 @@ router.get("/recipes", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
+router.get("/recipes-search", (req, res, next) => {
+  Recipe.find()
+    .then((response) => {
+      console.log(response);
+      res.json(response);
+    })
+
+    .catch((err) => res.json(err));
+});
+
 router.get("/recipes/:recipeId", (req, res, next) => {
   const { recipeId } = req.params;
 
