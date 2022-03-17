@@ -56,14 +56,62 @@ router.put("/add-favorite", isAuthenticated, (req, res, next) => {
     .catch((err) => console.log(err));
 });
 
-router.get("/favorites", (req, res, next) => {
-  User.find()
+router.get("/favorites/:userId", (req, res, next) => {
+  const { userId } = req.params;
+  User.findById(userId)
+    .then((response) => {
+      console.log(response);
+      res.json(response.favoriteRecipes);
+    })
+
+    .catch((err) => res.json(err));
+});
+
+router.get("/favorites/:favoriteId", (req, res, next) => {
+  const { favoriteId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(favoriteId)) {
+    res.status(400).json({ message: "Specified Id is not valid" });
+    return;
+  }
+  console.log(favoriteId);
+  Recipe.findById(favoriteId)
     .then((response) => {
       console.log(response);
       res.json(response);
     })
 
     .catch((err) => res.json(err));
+});
+
+router.put("/favorites/edit/:favoriteId", (req, res, next) => {
+  const { favoriteId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(favoriteId)) {
+    res.status(400).json({ message: "Specified Id is not valid" });
+    return;
+  }
+
+  Recipe.findByIdAndUpdate(favoriteId, req.body, { new: true })
+    .then((response) => res.json(response))
+    .catch((err) => res.json(err));
+});
+
+router.put("/favorites/:favoriteId", isAuthenticated, (req, res, next) => {
+  const { favoriteId } = req.params;
+  const user = req.payload;
+  const recipeObj = req.body;
+
+  console.log(recipeObj);
+  
+  User.findByIdAndUpdate(user._id, {
+    $pull: { favoriteRecipes: recipeObj },
+  })
+    .then((updatedUser) => {
+      console.log(updatedUser);
+      res.json(updatedUser);
+    })
+    .catch((err) => console.log(err));
 });
 // ****************************************************************************************
 // GET details of a specific user (primarily their posts)
